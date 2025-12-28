@@ -1,10 +1,13 @@
 {
-  "name": "deepinfra-proxy",
+  "name": "ai-proxy-api",
   "version": "1.0.0",
-  "type": "module",
-  "description": "Proxy for DeepInfra web endpoint with UA rotation",
+  "description": "DeepInfra Web Proxy API",
+  "main": "api/index.js",
   "scripts": {
-    "start": "vercel dev"
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
   },
   "engines": {
     "node": ">=18.x"
