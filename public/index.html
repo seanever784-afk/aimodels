@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Proxy API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-text {
+            background: linear-gradient(to right, #60A5FA, #A78BFA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .code-block {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-50 min-h-screen font-sans">
+
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        
+        <!-- Header -->
+        <header class="text-center mb-16">
+            <h1 class="text-5xl font-bold mb-4">AI <span class="gradient-text">Proxy API</span></h1>
+            <p class="text-slate-400 text-lg">Free, rotating-session proxy for advanced LLMs.</p>
+        </header>
+
+        <!-- Interactive Test Console -->
+        <div class="bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-700 mb-12">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                <h2 class="text-xl font-semibold"><i class="fas fa-terminal mr-2 text-blue-400"></i> Live Tester</h2>
+                <span class="text-xs font-mono bg-green-900 text-green-300 px-2 py-1 rounded">Status: Online</span>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Inputs -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Model ID</label>
+                        <select id="modelSelect" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="deepseek-ai/DeepSeek-V3.1">DeepSeek V3.1</option>
+                            <option value="deepseek-ai/DeepSeek-R1-0528-Turbo">DeepSeek R1 Turbo</option>
+                            <option value="Qwen/Qwen3-Coder-480B-A35B-Instruct-Turbo">Qwen3 Coder</option>
+                            <option value="moonshotai/Kimi-K2-Instruct">Kimi K2 Instruct</option>
+                            <option value="openai/gpt-oss-120b">GPT OSS 120B</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Prompt</label>
+                        <textarea id="promptInput" rows="4" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Type your prompt here...">Write a javascript function to sum two numbers.</textarea>
+                    </div>
+                    <button onclick="testApi()" id="sendBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition-all transform active:scale-95 shadow-lg shadow-blue-500/20">
+                        Send Request
+                    </button>
+                </div>
+
+                <!-- Output -->
+                <div class="relative">
+                    <label class="block text-sm font-medium text-slate-400 mb-1">JSON Response</label>
+                    <div class="absolute top-8 right-2">
+                        <button onclick="copyResponse()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-slate-300 transition">Copy</button>
+                    </div>
+                    <pre id="responseOutput" class="w-full h-64 bg-slate-950 border border-slate-900 rounded-lg p-4 text-xs font-mono overflow-auto text-green-400">Waiting for request...</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation API Reference -->
+        <div class="space-y-8">
+            <h2 class="text-3xl font-bold border-l-4 border-blue-500 pl-4">API Reference</h2>
+
+            <!-- GET Endpoint -->
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-blue-600 text-white font-bold px-3 py-1 rounded text-sm">GET</span>
+                    <code class="text-lg text-blue-300 font-mono">/chat/:model/:prompt</code>
+                </div>
+                <p class="text-slate-400 mb-4">Simple browser-accessible endpoint. Returns a complete JSON response (no streaming).</p>
+                <div class="code-block rounded-lg p-4 font-mono text-sm overflow-x-auto text-slate-300">
+                    curl "https://your-vercel-app.vercel.app/chat/deepseek-ai/DeepSeek-V3.1/Hello"
+                </div>
+            </div>
+
+            <!-- POST Endpoint -->
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-green-600 text-white font-bold px-3 py-1 rounded text-sm">POST</span>
+                    <code class="text-lg text-green-300 font-mono">/chat</code>
+                </div>
+                <p class="text-slate-400 mb-4">Standard JSON endpoint compatible with advanced workflows.</p>
+                <div class="code-block rounded-lg p-4 font-mono text-sm overflow-x-auto text-slate-300">
+curl -X POST "https://your-vercel-app.vercel.app/api/chat" \
+-H "Content-Type: application/json" \
+-d '{
+    "model": "deepseek-ai/DeepSeek-V3.1",
+    "messages": [{"role": "user", "content": "Explain Quantum Physics"}]
+}'
+                </div>
+            </div>
+
+            <!-- Supported Models -->
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                <h3 class="text-xl font-bold mb-4">Supported Models</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-sm text-slate-300">deepseek-ai/DeepSeek-V3.1</div>
+                    <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-sm text-slate-300">deepseek-ai/DeepSeek-R1-0528-Turbo</div>
+                    <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-sm text-slate-300">Qwen/Qwen3-Coder-480B-A35B-Instruct-Turbo</div>
+                    <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-sm text-slate-300">moonshotai/Kimi-K2-Instruct</div>
+                    <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-sm text-slate-300">openai/gpt-oss-120b</div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-16 text-center text-slate-500 text-sm">
+            <p>API Endpoint Project • Designed for Vercel</p>
+        </footer>
+
+    </div>
+
+    <script>
+        async function testApi() {
+            const btn = document.getElementById('sendBtn');
+            const output = document.getElementById('responseOutput');
+            const model = document.getElementById('modelSelect').value;
+            const prompt = document.getElementById('promptInput').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            output.innerText = "Connecting to proxy...";
+            output.classList.remove('text-red-400');
+            output.classList.add('text-green-400');
+
+            try {
+                // Construct URL for the GET endpoint pattern
+                // We use encodeURIComponent twice for safe measure if the prompt has special chars
+                const url = `/chat/${encodeURIComponent(model)}/${encodeURIComponent(prompt)}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    output.innerText = JSON.stringify(data, null, 2);
+                } else {
+                    throw new Error(data.error || "Unknown error");
+                }
+            } catch (error) {
+                output.classList.remove('text-green-400');
+                output.classList.add('text-red-400');
+                output.innerText = "Error: " + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Send Request';
+            }
+        }
+
+        function copyResponse() {
+            const text = document.getElementById('responseOutput').innerText;
+            navigator.clipboard.writeText(text);
+        }
+    </script>
+</body>
+</html>
