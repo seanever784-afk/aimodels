@@ -1,15 +1,11 @@
-const { getRandomUserAgent } = require('../userAgents');
-const crypto = require('crypto');
-
-// Helper to generate a random 32-character hex string (like a fingerprint/session ID)
-const randomID = () => crypto.randomBytes(16).toString('hex');
+import { getRandomUserAgent } from '../userAgents.js';
 
 export const config = {
-  runtime: 'edge', // Use Edge Runtime for better streaming performance
+  runtime: 'edge', 
 };
 
 export default async function handler(req) {
-  // 1. Handle CORS (Allow all origins for now, strict in production)
+  // 1. Handle CORS 
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
@@ -36,13 +32,10 @@ export default async function handler(req) {
       throw new Error('Messages array is required');
     }
 
-    // 3. Select Random User Agent and IDs
+    // 3. Select Random User Agent
     const userAgent = getRandomUserAgent();
-    // Some basic device info emulation based on the UA could go here, 
-    // but usually just the UA is enough for this specific endpoint.
     
     // 4. Construct Upstream Headers
-    // The "Referer" and "Origin" are the most critical parts for deepinfra.
     const upstreamHeaders = {
       'Accept': 'text/event-stream',
       'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
@@ -50,10 +43,10 @@ export default async function handler(req) {
       'Origin': 'https://deepinfra.com',
       'Referer': 'https://deepinfra.com/',
       'User-Agent': userAgent,
-      'X-Deepinfra-Source': 'web-page', // The magic key
-      'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"', // Generic modern chrome
+      'X-Deepinfra-Source': 'web-page', 
+      'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"', 
       'sec-ch-ua-mobile': userAgent.includes('Mobile') ? '?1' : '?0',
-      'sec-ch-ua-platform': userAgent.includes('Android') ? '"Android"' : '"Windows"', // simplistic matching
+      'sec-ch-ua-platform': userAgent.includes('Android') ? '"Android"' : '"Windows"', 
       'sec-fetch-dest': 'empty',
       'sec-fetch-mode': 'cors',
       'sec-fetch-site': 'same-site',
@@ -69,7 +62,7 @@ export default async function handler(req) {
       body: JSON.stringify({
         model: model,
         messages: body.messages,
-        stream: true, // Always force stream for this proxy
+        stream: true, 
       }),
     });
 
@@ -82,7 +75,6 @@ export default async function handler(req) {
     }
 
     // 7. Proxy the Stream back to the client
-    // We simply pipe the upstream body to the response
     return new Response(upstreamResponse.body, {
       headers: {
         'Content-Type': 'text/event-stream',
