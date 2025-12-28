@@ -1,8 +1,8 @@
 {
-  "version": 2,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/chat/:model/:prompt", "destination": "/api/index.js" },
-    { "source": "/api/chat", "destination": "/api/index.js" }
+    {
+      "source": "/chat/:model",
+      "destination": "/api/chat?model=:model"
+    }
   ]
 }
