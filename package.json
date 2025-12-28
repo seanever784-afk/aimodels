@@ -1,13 +1,10 @@
 {
   "name": "deepinfra-proxy",
   "version": "1.0.0",
+  "type": "module",
   "description": "Proxy for DeepInfra web endpoint with UA rotation",
-  "main": "api/chat.js",
   "scripts": {
     "start": "vercel dev"
-  },
-  "dependencies": {
-    "uuid": "^9.0.1"
   },
   "engines": {
     "node": ">=18.x"
